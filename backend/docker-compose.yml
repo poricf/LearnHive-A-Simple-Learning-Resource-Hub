@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+     - "8080:8000"
+
+    volumes:
+      - .:/var/www
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=bfejyzgjijlqpjtrwdov-mysql.services.clever-cloud.com
+      - DB_PORT=3306
+      - DB_DATABASE=bfejyzgjijlqpjtrwdov
+      - DB_USERNAME=u8i3qtjz8yul5fds
+      - DB_PASSWORD=mEFoTwlKIZBuwIsTJncu
