@@ -11,4 +11,17 @@ class Resource extends Model
         'ratingCount', 'category_id', 'thumbnail',
         'difficulty_id', 'link'
     ];
+
+    public function scopeFilter($query, $filters)
+    {
+        if (isset($filters['category'])) {
+            $query->where('category_id', $filters['category']);
+        }
+
+        if (isset($filters['type'])) {
+            $query->where('type_id', $filters['type']);
+        }
+
+        return $query;
+    }
 }

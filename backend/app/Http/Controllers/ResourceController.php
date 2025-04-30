@@ -8,14 +8,13 @@ use Illuminate\Validation\ValidationException;
 
 class ResourceController extends Controller
 {
-    public function index()
-    {
-        try {
-            return response()->json(Resource::all(), 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to fetch resources'], 500);
-        }
-    }
+    public function index(Request $request)
+{
+    $resources = Resource::filter($request->only(['category', 'type']))->get();
+
+    return response()->json($resources);
+}
+
 
     public function store(Request $request)
     {
@@ -40,7 +39,7 @@ class ResourceController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create resource'], 500);
+            return response()->json(['errors' => 'Failed to create resource'], 500);
         }
     }
 
