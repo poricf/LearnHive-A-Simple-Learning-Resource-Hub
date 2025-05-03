@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ResourceCard from "@/components/resource-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -10,8 +10,15 @@ import { Search, Menu, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import ResourcesSidebar from "@/components/resources-sidebar"
+import { Resource } from '@/types/resource'
+import { resourceApi } from '@/lib/api/resources'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function ResourcesContent() {
+  const [resources, setResources] = useState<Resource[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
   const [sortOption, setSortOption] = useState("rating")
   const [searchQuery, setSearchQuery] = useState("")
   const [sidebarVisible, setSidebarVisible] = useState(false)
@@ -22,157 +29,35 @@ export default function ResourcesContent() {
     rating: 0,
   })
 
-  // Sample resources data
-  const resources = [
-    {
-      id: "1",
-      title: "Complete React Developer in 2023",
-      type: "video",
-      source: "YouTube",
-      rating: 4.8,
-      ratingCount: 1245,
-      tags: ["Beginner", "Project-Based"],
-      category: "Web Development",
-      subcategory: "React",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Beginner",
-      videoId: "dGcsHMXbSOA", // Example YouTube ID
-    },
-    {
-      id: "2",
-      title: "Machine Learning A-Z: Hands-On Python & R",
-      type: "course",
-      source: "Udemy",
-      rating: 4.6,
-      ratingCount: 987,
-      tags: ["Intermediate", "Comprehensive"],
-      category: "AI & Machine Learning",
-      subcategory: "Machine Learning",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Intermediate",
-    },
-    {
-      id: "3",
-      title: "Data Structures and Algorithms in JavaScript",
-      type: "article",
-      source: "Medium",
-      rating: 4.5,
-      ratingCount: 756,
-      tags: ["Advanced", "Interview Prep"],
-      category: "Computer Science",
-      subcategory: "Algorithms",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Advanced",
-    },
-    {
-      id: "4",
-      title: "The Complete JavaScript Course 2023",
-      type: "course",
-      source: "Udemy",
-      rating: 4.7,
-      ratingCount: 1532,
-      tags: ["Beginner", "Comprehensive"],
-      category: "Web Development",
-      subcategory: "JavaScript",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Beginner",
-    },
-    {
-      id: "5",
-      title: "Python for Data Science and Machine Learning",
-      type: "video",
-      source: "YouTube",
-      rating: 4.9,
-      ratingCount: 876,
-      tags: ["Intermediate", "Hands-On"],
-      category: "AI & Machine Learning",
-      subcategory: "Python",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Intermediate",
-      videoId: "LHBE6Q9XlzI", // Example YouTube ID
-    },
-    {
-      id: "6",
-      title: "UI/UX Design Fundamentals",
-      type: "article",
-      source: "Medium",
-      rating: 4.3,
-      ratingCount: 543,
-      tags: ["Beginner", "Design Principles"],
-      category: "UI/UX Design",
-      subcategory: "Fundamentals",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Beginner",
-    },
-    {
-      id: "7",
-      title: "Introduction to Physics: Mechanics",
-      type: "video",
-      source: "Khan Academy",
-      rating: 4.7,
-      ratingCount: 892,
-      tags: ["Beginner", "Academic"],
-      category: "Science",
-      subcategory: "Physics",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Beginner",
-      videoId: "ZM8ECpBuQYE", // Example YouTube ID
-    },
-    {
-      id: "8",
-      title: "Mechanical Engineering Principles",
-      type: "course",
-      source: "Coursera",
-      rating: 4.5,
-      ratingCount: 623,
-      tags: ["Intermediate", "Comprehensive"],
-      category: "Engineering",
-      subcategory: "Mechanical",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Intermediate",
-    },
-    {
-      id: "9",
-      title: "World History: Ancient Civilizations",
-      type: "article",
-      source: "History.com",
-      rating: 4.2,
-      ratingCount: 412,
-      tags: ["Beginner", "Comprehensive"],
-      category: "History",
-      subcategory: "Ancient History",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Beginner",
-    },
-    {
-      id: "10",
-      title: "Clean Code: A Handbook of Agile Software Craftsmanship",
-      type: "book",
-      source: "PDF Library",
-      rating: 4.8,
-      ratingCount: 1876,
-      tags: ["Advanced", "Best Practice"],
-      category: "Computer Science",
-      subcategory: "Software Engineering",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Intermediate",
-      pdfUrl: "https://example.com/clean-code.pdf", // Example PDF URL
-    },
-    {
-      id: "11",
-      title: "Design Patterns: Elements of Reusable Object-Oriented Software",
-      type: "book",
-      source: "PDF Library",
-      rating: 4.7,
-      ratingCount: 1543,
-      tags: ["Advanced", "Architecture"],
-      category: "Computer Science",
-      subcategory: "Software Design",
-      thumbnail: "/placeholder.svg?height=200&width=350",
-      difficulty: "Advanced",
-      pdfUrl: "https://example.com/design-patterns.pdf", // Example PDF URL
-    },
-  ]
+  useEffect(() => {
+    fetchResources()
+  }, [])
+
+  const fetchResources = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const data = await resourceApi.getResources()
+      setResources(data)
+    } catch (err) {
+      setError('Failed to load resources')
+      toast({
+        title: "Error",
+        description: "Failed to load resources. Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return <div>Loading resources...</div>
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>
+  }
 
   // Filter resources based on search query and active filters
   const filteredResources = resources.filter((resource) => {
@@ -211,15 +96,16 @@ export default function ResourcesContent() {
 
   // Sort resources based on selected option
   const sortedResources = [...filteredResources].sort((a, b) => {
-    if (sortOption === "rating") {
-      return b.rating - a.rating
-    } else if (sortOption === "newest") {
-      // In a real app, you would sort by date
-      return Number.parseInt(b.id) - Number.parseInt(a.id)
-    } else if (sortOption === "popular") {
-      return b.ratingCount - a.ratingCount
+    switch (sortOption) {
+      case "rating":
+        return b.rating - a.rating
+      case "newest":
+        return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+      case "oldest":
+        return new Date(a.created_at || '').getTime() - new Date(b.created_at || '').getTime()
+      default:
+        return 0
     }
-    return 0
   })
 
   const handleApplyFilters = (filters: any) => {
@@ -312,7 +198,7 @@ export default function ResourcesContent() {
               <SelectContent>
                 <SelectItem value="rating">Top Rated</SelectItem>
                 <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="popular">Most Popular</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
               </SelectContent>
             </Select>
           </form>
@@ -367,7 +253,7 @@ export default function ResourcesContent() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {sortedResources.map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard key={resource.id} {...resource} />
                 ))}
               </div>
             )}
@@ -378,7 +264,7 @@ export default function ResourcesContent() {
               {sortedResources
                 .filter((resource) => resource.type === "video")
                 .map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard key={resource.id} {...resource} />
                 ))}
             </div>
           </TabsContent>
@@ -388,7 +274,7 @@ export default function ResourcesContent() {
               {sortedResources
                 .filter((resource) => resource.type === "article")
                 .map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard key={resource.id} {...resource} />
                 ))}
             </div>
           </TabsContent>
@@ -398,7 +284,7 @@ export default function ResourcesContent() {
               {sortedResources
                 .filter((resource) => resource.type === "book")
                 .map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard key={resource.id} {...resource} />
                 ))}
             </div>
           </TabsContent>
@@ -408,7 +294,7 @@ export default function ResourcesContent() {
               {sortedResources
                 .filter((resource) => resource.type === "course")
                 .map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard key={resource.id} {...resource} />
                 ))}
             </div>
           </TabsContent>
