@@ -17,5 +17,7 @@ Route::post('/categories', [CategoryController::class, 'addCategory']);
 Route::post('/subcategories', [SubcategoryController::class, 'store']);
 
 Route::put('/categories/{id}', [CategoryController::class, 'updateCategory']);
+
+Route::delete('/categories/{id}', [CategoryController::class, 'deleteCategory']);
 // Route::post('/login', [R::class, 'login']);
 // Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']); 
