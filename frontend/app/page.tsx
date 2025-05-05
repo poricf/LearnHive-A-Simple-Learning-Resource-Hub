@@ -226,7 +226,9 @@ export default function Home() {
               Create an account to bookmark resources, track your progress, and contribute to the community.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-2">
-              <Button size="lg">Sign Up Free</Button>
+              <Button size="lg" asChild>
+                <Link href="/login?tab=register">Sign Up Free</Link>
+              </Button>
               <Button size="lg" variant="outline">
                 Learn More
               </Button>
