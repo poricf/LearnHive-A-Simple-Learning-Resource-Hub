@@ -57,4 +57,41 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+    public function addSubcategory(Request $request): JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:categories,name',
+                'parent_id' => 'required|exists:categories,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $category = Category::create([
+                'name' => $request->name,
+                'parent_id' => $request->parent_id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $category,
+                'message' => 'Subcategory created successfully'
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Add Subcategory Error: ' . $e->getMessage(), [
+                'request' => $request->all(),
+                'exception' => $e
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create subcategory: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

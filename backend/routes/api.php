@@ -11,6 +11,9 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/categories', [CategoryController::class, 'getCategories']);
+
 Route::post('/categories', [CategoryController::class, 'addCategory']);
+
+Route::post('/subcategories', [CategoryController::class, 'addSubcategory']);
 // Route::post('/login', [R::class, 'login']);
 // Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']); 
