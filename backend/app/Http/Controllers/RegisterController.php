@@ -11,25 +11,27 @@ class RegisterController extends Controller
 {
     public function register(Request $request)
     {
+        // Validate the request
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        // Create the user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 'user',
         ]);
 
         return response()->json([
-            'message' => 'User registered successfully',
+            'message' => 'Registration successful',
             'user' => $user
         ], 201);
     }
