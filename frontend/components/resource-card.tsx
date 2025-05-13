@@ -12,30 +12,40 @@ import { useToast } from "@/components/ui/use-toast"
 import { Bookmark, BookmarkCheck, Video, FileText, BookOpen } from "lucide-react"
 
 interface ResourceCardProps {
-  resource: {
-    id: string
-    title: string
-    type: string
-    source: string
-    rating: number
-    ratingCount: number
-    tags?: string[]
-    category: string
-    subcategory: string
-    thumbnail?: string
-    bookmarked?: boolean
-    difficulty?: string
-  }
-  onRemoveBookmark?: () => void
+  id: number;
+  title: string;
+  type: string;
+  source: string;
+  rating: number;
+  ratingCount: number;
+  tags?: string[];
+  category: string;
+  subcategory: string;
+  thumbnail?: string;
+  bookmarked?: boolean;
+  difficulty?: string;
 }
 
-export default function ResourceCard({ resource, onRemoveBookmark }: ResourceCardProps) {
+export default function ResourceCard({
+  id,
+  title,
+  type,
+  source,
+  rating,
+  ratingCount,
+  tags,
+  category,
+  subcategory,
+  thumbnail,
+  bookmarked,
+  difficulty,
+}: ResourceCardProps) {
   const { toast } = useToast()
-  const [isBookmarked, setIsBookmarked] = useState(Boolean(resource.bookmarked))
+  const [isBookmarked, setIsBookmarked] = useState(Boolean(bookmarked))
 
   // Function to get the icon based on resource type
-  const getTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+  const getTypeIcon = (type: string | undefined) => {
+    switch ((type || '').toLowerCase()) {
       case "video":
         return <Video className="h-4 w-4" />
       case "article":
@@ -53,25 +63,28 @@ export default function ResourceCard({ resource, onRemoveBookmark }: ResourceCar
     e.preventDefault()
     e.stopPropagation()
 
-    if (isBookmarked && onRemoveBookmark) {
-      onRemoveBookmark()
-      return
+    if (isBookmarked) {
+      // Implement the remove bookmark logic here
+      setIsBookmarked(false)
+      toast({
+        title: "Bookmark removed",
+        description: "The resource has been removed from your bookmarks.",
+      })
+    } else {
+      // Implement the add bookmark logic here
+      setIsBookmarked(true)
+      toast({
+        title: "Bookmark added",
+        description: "The resource has been added to your bookmarks.",
+      })
     }
-
-    setIsBookmarked(!isBookmarked)
-    toast({
-      title: isBookmarked ? "Bookmark removed" : "Bookmark added",
-      description: isBookmarked
-        ? "The resource has been removed from your bookmarks."
-        : "The resource has been added to your bookmarks.",
-    })
   }
 
   // Generate stars based on rating
   const renderStars = () => {
     const stars = []
-    const fullStars = Math.floor(resource.rating)
-    const hasHalfStar = resource.rating % 1 >= 0.5
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 >= 0.5
 
     // Add full stars
     for (let i = 0; i < fullStars; i++) {
@@ -142,10 +155,10 @@ export default function ResourceCard({ resource, onRemoveBookmark }: ResourceCar
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md hover:border-blue-200 group">
-      <Link href={`/resources/${resource.id}`} className="block h-full">
+      <Link href={`/resources/${id}`} className="block h-full">
         <div className="relative aspect-video bg-gray-100 flex items-center justify-center">
-          {resource.thumbnail ? (
-            <Image src={resource.thumbnail || "/placeholder.svg"} alt={resource.title} fill className="object-cover" />
+          {thumbnail ? (
+            <Image src={thumbnail || "/placeholder.svg"} alt={title} fill className="object-cover" />
           ) : (
             <div className="text-gray-400">
               <svg
@@ -168,8 +181,8 @@ export default function ResourceCard({ resource, onRemoveBookmark }: ResourceCar
           )}
           <div className="absolute top-2 left-2">
             <Badge variant="secondary" className="flex items-center gap-1 bg-white/90">
-              {getTypeIcon(resource.type)}
-              <span className="sr-only">{resource.type}</span>
+              {getTypeIcon(type)}
+              <span className="sr-only">{type}</span>
             </Badge>
           </div>
           <button
@@ -186,24 +199,24 @@ export default function ResourceCard({ resource, onRemoveBookmark }: ResourceCar
         </div>
         <CardContent className="p-4">
           <div className="flex flex-col gap-2">
-            <h3 className="font-medium line-clamp-2 text-base">{resource.title}</h3>
+            <h3 className="font-medium line-clamp-2 text-base">{title}</h3>
             <div className="flex items-center gap-1 text-sm text-gray-600">
-              <span>{resource.source}</span>
+              <span>{source}</span>
               <span className="text-gray-400">•</span>
               <span>
-                {resource.category} / {resource.subcategory}
+                {category} / {subcategory}
               </span>
             </div>
             <div className="flex items-center justify-between mt-1">
               <div className="flex items-center gap-1">
                 <div className="flex">{renderStars()}</div>
                 <span className="text-sm text-gray-600">
-                  {resource.rating.toFixed(1)} ({resource.ratingCount})
+                  {(rating || 0).toFixed(1)} ({ratingCount || 0})
                 </span>
               </div>
-              {resource.difficulty && (
+              {difficulty && (
                 <Badge variant="outline" className="text-xs font-normal">
-                  {resource.difficulty}
+                  {difficulty}
                 </Badge>
               )}
             </div>

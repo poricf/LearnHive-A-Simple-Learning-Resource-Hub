@@ -1,3 +1,5 @@
+"use client"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AdminDashboard from "@/components/admin/admin-dashboard"
 import AdminResources from "@/components/admin/admin-resources"
@@ -39,4 +41,4 @@ export default function AdminPage() {
       </div>
     </div>
   )
-}
+} 
