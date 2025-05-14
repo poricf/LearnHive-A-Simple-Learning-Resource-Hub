@@ -7,18 +7,15 @@ use App\Http\Controllers\ResourceController;
 
 
 
+use App\Http\Controllers\BookmarkController;
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/protected', function () {
-        return response()->json(['message' => 'You are authenticated!']);
-    });
-    
-    // Bookmarks routes
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
     Route::post('/bookmarks', [BookmarkController::class, 'store']);
-    Route::delete('/bookmarks/{bookmark}', [BookmarkController::class, 'destroy']);
+    Route::delete('/bookmarks/{resource}', [BookmarkController::class, 'destroy']);
 });
 
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/register', [RegisterController::class, 'register']);
 
 Route::apiResource('resources', ResourceController::class);

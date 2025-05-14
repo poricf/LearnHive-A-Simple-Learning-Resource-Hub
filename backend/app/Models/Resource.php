@@ -24,4 +24,9 @@ class Resource extends Model
 
         return $query;
     }
+
+    public function bookmarkedByUsers()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }
