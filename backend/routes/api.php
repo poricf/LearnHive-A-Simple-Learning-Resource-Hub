@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
@@ -18,6 +19,12 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/register', [RegisterController::class, 'register']);
 
-Route::apiResource('resources', ResourceController::class);
-// Route::post('/login', [R::class, 'login']);
-// Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']); 
+Route::get('/resources/{resource}', [ResourceController::class, 'show']);
+Route::get('/resources', [ResourceController::class, 'index']);
+
+
+Route::prefix('admin')->middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
+    Route::put('/resources/{resource}', [ResourceController::class, 'update']);
+    Route::post('/resources', [ResourceController::class, 'store']);
+    Route::delete('/resources/{resource}', [ResourceController::class, 'destroy']);
+});
