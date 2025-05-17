@@ -24,15 +24,19 @@ class ResourceController extends Controller
                 'type_id' => 'required|integer',
                 'about' => 'required|string',
                 'source' => 'required|string',
-                'rating' => 'nullable|numeric',
-                'ratingCount' => 'nullable|integer',
                 'category_id' => 'required|integer',
                 'thumbnail' => 'required|string',
                 'difficulty_id' => 'required|integer',
                 'link' => 'required|string'
             ]);
 
-            $resource = Resource::create($validated);
+            
+            $dataToCreate = array_merge($validated, [
+                'rating' => 0,
+                'ratingCount' => 0
+            ]);
+    
+            $resource = Resource::create($dataToCreate);
 
             return response()->json($resource, 201);
 
@@ -65,8 +69,6 @@ class ResourceController extends Controller
                 'type_id' => 'sometimes|required|integer',
                 'about' => 'sometimes|required|string',
                 'source' => 'sometimes|required|string',
-                'rating' => 'nullable|numeric',
-                'ratingCount' => 'nullable|integer',
                 'category_id' => 'sometimes|required|integer',
                 'thumbnail' => 'sometimes|required|string',
                 'difficulty_id' => 'sometimes|required|integer',
